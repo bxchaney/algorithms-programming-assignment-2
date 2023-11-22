@@ -30,3 +30,7 @@
 *.exe
 *.out
 *.app
+
+/Lib
+/Scripts
+pyvenv.cfg
