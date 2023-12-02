@@ -1,12 +1,11 @@
 from typing import Tuple, Union
 
-class Colors:
 
+class Colors:
     grey = "\033[90m"
     blue = "\033[94m"
     red = "\033[91m"
     end = "\033[0m"
-
 
 
 def clrs_lcs(s: str, x: str) -> Tuple[list[list[int]], list[list[str]]]:
@@ -33,47 +32,56 @@ def clrs_lcs(s: str, x: str) -> Tuple[list[list[int]], list[list[str]]]:
     return c, b
 
 
-def get_reps(b: list[list[str]], x: str, i: int, j: int) -> list[list[int]]:
-    strings = []
+# def get_reps(b: list[list[str]], x: str, i: int, j: int) -> set[Tuple[int,...]]:
+#     strings = set()
 
-    def get_lcs(b: list[list[str]], s: list[int], x: str, i: int, j: int):
-        if i == 0 or j == 0:
-            strings.append(s[::-1])
-            return
-        if b[i][j] == "\\":
-            # if points to ^ and above is \\, then recurse
-            if b[i - 1][j - 1] == "^" and (b[i - 1][j] in ["\\", "^"]) :
-            #if b[i - 1][j - 1] == "^" and (b[i - 1][j] in ["\\"]) :
-                new_s = s.copy()
-                get_lcs(b, new_s, x, i - 1, j)
-            s.append(i - 1)
-            get_lcs(b, s, x, i - 1, j - 1)
-        elif b[i][j] == "^":
-            get_lcs(b, s, x, i - 1, j)
+def get_lcs(strings: list[Tuple[int,...]], b: list[list[str]], s: list[int], x: str, i: int, j: int):
+    if i == 0 or j == 0:
+        if len(s) % len(x) == 0 and len(s) > 0:
+            strings.add(tuple(s[::-1]))
+        return
+    if b[i][j] == "\\":
+        # if points to ^ and above is \\, then recurse
+        if b[i - 1][j - 1] in ["\\","^"] and (b[i - 1][j] in ["\\", "^"]):
+            # if b[i - 1][j - 1] == "^" and (b[i - 1][j] in ["\\"]) :
+            new_s = s.copy()
+            get_lcs(strings, b, new_s, x, i - 1, j)
+        # # if points to "\\" and above is "^", recurse
+        # if b[i - 1][j - 1] == "\\" and (b[i-1][j] in ["\\", "^"]):
+        #     new_s = s.copy()
+        #     get_lcs(b, new_s, x, i-1)
+        
+        s.append(i - 1)
+        get_lcs(strings, b, s, x, i - 1, j - 1)
+    elif b[i][j] == "^":
+        get_lcs(strings, b, s, x, i - 1, j)
 
-        else:
-            get_lcs(b, s, x, i, j - 1)
+    else:
+        get_lcs(strings, b, s, x, i, j - 1)
 
-    while i > 0:
-        get_lcs(b, [], x, i, j)
-        i -= 1
+    # while i > 0:
+    #     get_lcs(b, [], x, i, j)
+    #     i -= 1
 
+    # return strings
+
+
+def get_reps(str1,str2, c, b):
+    last_row = c[-1]
+    strings = set()
+    for j, v in enumerate(last_row):
+        if v % len(str2) == 0 and v > 0:
+            get_lcs(strings, b, [], str2, len(str1), j)
     return strings
 
 
 def get_sets(str1, str2):
     c, b = clrs_lcs(str1, str2)
     for i in range(len(c)):
-        print( ", ".join([f"{v}{ch}" for v, ch in zip(c[i], b[i])]))
-            
-    i = 0
-    last_row = c[-1]
-    while i < len(last_row) - 1:
-        if last_row[i] + 1 == last_row[i + 1]:
-            i += 1
-        else:
-            break
-    return get_reps(b, str1, len(str1), i - (i % len(str2)))
+        print(", ".join([f"{v}{ch}" for v, ch in zip(c[i], b[i])]))
+
+    return get_reps(str1, str2, c, b)
+    #return get_reps(b, str2, len(str1), i - (i % len(str2)))
 
 
 def is_interleaving(s: str, x: str, y: str) -> Tuple[bool, Union[Tuple, None]]:
@@ -91,10 +99,9 @@ def is_interleaving(s: str, x: str, y: str) -> Tuple[bool, Union[Tuple, None]]:
         minimum = min(minimum, rep_y[0])
         maximum = max(maximum, rep_y[-1])
 
-    for rep_x in reps_of_x:
-        x_set = set(rep_x)
-        for rep_y in reps_of_y:
-            res = check_sets(s, x_set, x, set(rep_y), y, minimum, maximum)
+    for x_set in reps_of_x:
+        for y_set in reps_of_y:
+            res = check_sets(s, set(x_set), x, set(y_set), y, minimum, maximum)
             if res is not None:
                 return True, res
     return False, None
@@ -141,14 +148,15 @@ def is_rep(s: str, x_set: set[int], x: str) -> bool:
             return False
     return True
 
-def print_res(res: Tuple[bool, Tuple[set[int]]], s:str, x:str, y:str) -> None:
+
+def print_res(res: Tuple[set[int], set[int]], s: str, x: str, y: str) -> None:
     print(f"s: {s}")
     print(f"x: {Colors.blue}{x}{Colors.end}")
     print(f"y: {Colors.red}{y}{Colors.end}")
 
     out = []
-    x_set = res[1][0]
-    y_set = res[1][1]
+    x_set = res[0]
+    y_set = res[1]
     for i, c in enumerate(s):
         if i in x_set:
             out.append(f"{Colors.blue}{c}{Colors.end}")
@@ -159,15 +167,15 @@ def print_res(res: Tuple[bool, Tuple[set[int]]], s:str, x:str, y:str) -> None:
     print("".join(out))
 
 
-
 # Driver program to run the case
 if __name__ == "__main__":
-    
-    s = "010101"
+    s = "101010101010"
     x = "101"
     y = "010"
     res = is_interleaving(s, x, y)
+    print("|".join([f"{c:3s}" for c in s]))
+    print("|".join(f"{i:3d}" for i in range(len(s))))
     if res[0]:
-        print_res(res, s, x, y)
+        print_res(res[1], s, x, y)
 
     # prinlAllLCSSorted(str1, str2)
