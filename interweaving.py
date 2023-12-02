@@ -24,7 +24,7 @@ class Interweaving:
     ) -> bool:
         self._set_dp_table(s)
         len_x_k = len(self._x) * (len(s) // len(self._x))
-        len_y_k = len(self._y) * (len(s) // len(self._x))
+        len_y_k = len(self._y) * (len(s) // len(self._y))
 
         if len(self._x) + len(self._y) > len(s):
             return False
