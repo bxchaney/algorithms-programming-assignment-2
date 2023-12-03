@@ -21,33 +21,39 @@ class Interweaving:
     def check_substrings(
         self,
         s: str,
-    ) -> bool:
+    ) -> None:
         self._set_dp_table(s)
         len_x_k = len(self._x) * (len(s) // len(self._x))
         len_y_k = len(self._y) * (len(s) // len(self._y))
 
-        if len(self._x) + len(self._y) > len(s):
-            return False
+        self.counter += 1
         for i in range(len_x_k + 1):
+            self.counter += 1
             for j in range(len_y_k + 1):
+                self.counter += 2
                 if i + j > len(s):
                     continue
+
+                self.counter += 1
                 if i == 0 and j == 0:
                     self._dp[i][j] = True
 
                 elif i == 0:
+                    self.counter += 3
                     self._dp[i][j] = (
                         self._dp[i][j - 1]
                         and self._y[(j - 1) % len(self._y)] == s[i + j - 1]
                     )
 
                 elif j == 0:
+                    self.counter += 4
                     self._dp[i][j] = (
                         self._dp[i - 1][j]
                         and self._x[(i - 1) % len(self._x)] == s[i + j - 1]
                     )
 
                 else:
+                    self.counter += 6
                     self._dp[i][j] = (
                         self._dp[i - 1][j]
                         and self._x[(i - 1) % len(self._x)] == s[i + j - 1]
@@ -55,10 +61,6 @@ class Interweaving:
                         self._dp[i][j - 1]
                         and self._y[(j - 1) % len(self._y)] == s[i + j - 1]
                     )
-
-        for row in self._dp:
-            print([1 if i else 0 for i in row])
-        return self._dp[len(self._x)][len(self._y)]
 
     def check_linear_combinations(self, s: str) -> bool:
         """
@@ -80,18 +82,26 @@ class Interweaving:
         """
         solution = False
         # Necessary condition to have complete repetitions of x and y
-        if len(s) % gcd(len(self._x), len(self._y)) != 0:
-            print(len(s) % gcd(len(self._x), len(self._y)))
-            return solution
+        s_end = len(s)
+        self.counter += 1
+        while s_end % gcd(len(self._x), len(self._y)) != 0:
+            self.counter += 1
+            s_end -= 1
+
+        if s_end < len(self._x) + len(self._y):
+            return False
+
+        s = s[:s_end]
+
         self.check_substrings(s)
         n, m = self.modified_bezout(len(s), len(self._x), len(self._y))
-        print(n, m)
         candidates = self.get_candidate_solutions(
             len(self._x), n, len(self._y), m
         )
 
+        self.counter += 1
         for i, j in candidates:
-            print(f"Potential solution at:({len(self._x) * i}, {len(self._y) *j})")
+            self.counter += 2
             if self._dp[len(self._x) * i][len(self._y) * j]:
                 solution = True
                 break
@@ -99,20 +109,38 @@ class Interweaving:
         return solution
 
     def is_interweaving(self) -> bool:
-        return self.check_linear_combinations(self._s)
+        self.counter += 1
+        for c in self._s:
+            self.counter += 1
+            if c not in ["0", "1"]:
+                return False
+        match_found = False
+        s_begin = 0
+        for i, c in enumerate(self._s):
+            self.counter += 1
+            if self._s[i] in [self._x[0], self._y[0]]:
+                s_begin = i
+                match_found = True
+                break
+        if not match_found:
+            return False
+
+        return self.check_linear_combinations(self._s[s_begin:])
 
     def modified_bezout(self, c: int, a: int, b: int) -> Tuple[int, int]:
-        print("hello")
         s = 0
         r = b
         old_s = 1
         old_r = a
 
+        self.counter += 1
         while r != 0:
+            self.counter += 1
             q = old_r // r
             old_r, r = r, old_r - q * r
             old_s, s = s, old_s - q * s
 
+        self.counter += 1
         if b != 0:
             t = (old_r - old_s * a) // b
         else:
@@ -125,18 +153,24 @@ class Interweaving:
         self, a: int, n: int, b: int, m: int
     ) -> list[Tuple[int, int]]:
         candidates = []
+        self.counter += 1
         if n <= 0 and m <= 0:
             return candidates
 
         d = gcd(a, b)
 
         # shift through solutions until n is < 0 and m > 0
+        self.counter += 1
         if not (n <= 0 and m > 0):
+            self.counter += 1
             while n > 0:
+                self.counter += 1
                 n -= b // d
                 m += a // d
 
+        self.counter += 1
         while m - (a // d) > 0:
+            self.counter += 1
             n += b // d
             m -= a // d
             candidates.append((n, m))
@@ -144,11 +178,21 @@ class Interweaving:
         return candidates
 
 
+def main(argv: list[str]):
+    if len(argv) < 4:
+        print(
+            "Not enough arguments. This program expects 3 command line inputs,"
+            + " s, x, and y, as strings of 0's and 1's."
+        )
+
+    weaving = Interweaving(argv[1], argv[2], argv[3])
+    if weaving.is_interweaving():
+        print(
+            f"Success! {argv[1]} is an interweaving of {argv[2]} and {argv[3]}"
+        )
+    else:
+        print("Could not determine if this is an interweaving")
+
+
 if __name__ == "__main__":
-    str1 = "11011"
-    str2 = "00"
-    str3 = "00011011000001101100"
-    # print(Solution.isInterleave(str1, str2, str3))
-    # print(is_interwoven(str3, str1, str2))
-    weaving = Interweaving(str3, str1, str2)
-    print(weaving.is_interweaving())
+    main(sys.argv)
