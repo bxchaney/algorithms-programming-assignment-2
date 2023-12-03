@@ -81,18 +81,6 @@ class Interweaving:
         divides c.
         """
         solution = False
-        # Necessary condition to have complete repetitions of x and y
-        s_end = len(s)
-        self.counter += 1
-        while s_end % gcd(len(self._x), len(self._y)) != 0:
-            self.counter += 1
-            s_end -= 1
-
-        if s_end < len(self._x) + len(self._y):
-            return False
-
-        s = s[:s_end]
-
         self.check_substrings(s)
         n, m = self.modified_bezout(len(s), len(self._x), len(self._y))
         candidates = self.get_candidate_solutions(
@@ -124,8 +112,22 @@ class Interweaving:
                 break
         if not match_found:
             return False
+        
+        s = self._s[s_begin:]
 
-        return self.check_linear_combinations(self._s[s_begin:])
+        s_end = len(s)
+        self.counter += 1
+        # Necessary condition to have complete repetitions of x and y
+        while s_end % gcd(len(self._x), len(self._y)) != 0:
+            self.counter += 1
+            s_end -= 1
+
+        if s_end < len(self._x) + len(self._y):
+            return False
+
+        s = s[:s_end]
+
+        return self.check_linear_combinations(s)
 
     def modified_bezout(self, c: int, a: int, b: int) -> Tuple[int, int]:
         s = 0
