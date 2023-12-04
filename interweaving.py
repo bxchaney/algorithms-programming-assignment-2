@@ -1,4 +1,4 @@
-from math import ceil,gcd
+from math import ceil, gcd
 import sys
 from typing import Tuple
 
@@ -189,8 +189,10 @@ def main(argv: list[str]):
             f"Success! {argv[1]} is an interweaving of {argv[2]} and {argv[3]}"
         )
     else:
-        print(f"Could not determine if {argv[1]} this is an interweaving of "
-              +f"{argv[2]} and {argv[3]}.")
+        print(
+            f"Could not determine if {argv[1]} this is an interweaving of "
+            + f"{argv[2]} and {argv[3]}."
+        )
 
 
 if __name__ == "__main__":
