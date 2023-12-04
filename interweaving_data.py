@@ -1,3 +1,9 @@
+"""
+This script generates a given number of random strings of a given length. The 
+first argument is the number of strings to generate, and the second argument is
+the length of each string. The strings are printed to stdout.
+"""
+
 import sys
 import random
 

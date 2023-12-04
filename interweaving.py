@@ -12,6 +12,9 @@ class Interweaving:
         self._dp = [[]]
 
     def _set_dp_table(self, s: str) -> None:
+        """
+        This method initializes the 2D array _dp. All entries are set to False.
+        """
         len_x_k = len(self._x) * (len(s) // len(self._x))
         len_y_k = len(self._y) * (len(s) // len(self._y))
         self._dp = [
@@ -22,6 +25,13 @@ class Interweaving:
         self,
         s: str,
     ) -> None:
+        """
+        This is the main dynamic programming method. It stores the results of
+        checking if substrings of s are interweavings of repetitions of x and
+        y. The results are stored in the 2D array _dp. The entry _dp[i][j] is
+        True if the substring s[:i+j] is an interweaving of repetitions of x
+        and y. The method returns nothing, but the results are stored in _dp.
+        """
         self._set_dp_table(s)
         len_x_k = len(self._x) * (len(s) // len(self._x))
         len_y_k = len(self._y) * (len(s) // len(self._y))
@@ -94,13 +104,23 @@ class Interweaving:
         return False
 
     def is_interweaving(self) -> bool:
+        """
+        This method performs some basic error handling and then calls
+        check_linear_combinations to determine if s is an interweaving of x and
+        y.
+        """
+        
         self.counter += 1
+        
+        # check for illegal characters
         for c in self._s:
             self.counter += 1
             if c not in ["0", "1"]:
                 return False
         match_found = False
         s_begin = 0
+        
+        # let the first character of s be the first character of x or y.
         for i, c in enumerate(self._s):
             self.counter += 1
             if self._s[i] in [self._x[0], self._y[0]]:
@@ -127,6 +147,10 @@ class Interweaving:
         return self.check_linear_combinations(s)
 
     def modified_bezout(self, a: int, b: int, c: int) -> Tuple[int, int]:
+        """
+        This method is a modified version of Euclid's Extended Algorithm.
+        """
+        
         s = 0
         r = b
         old_s = 1
@@ -151,6 +175,10 @@ class Interweaving:
     def get_candidate_solutions(
         self, a: int, b: int, c: int
     ) -> list[Tuple[int, int]]:
+        """
+        Given one solution, this method finds all other possible solutions to
+        the linear equation an + bm = c.
+        """
         n, m = self.modified_bezout(a, b, c)
         candidates = []
         self.counter += 1
