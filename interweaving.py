@@ -1,4 +1,4 @@
-from math import gcd
+from math import ceil,gcd
 import sys
 from typing import Tuple
 
@@ -162,11 +162,9 @@ class Interweaving:
         # shift through solutions until n is < 0 and m > 0
         self.counter += 1
         if not (n <= 0 and m > 0):
-            self.counter += 1
-            while n > 0:
-                self.counter += 1
-                n -= b // d
-                m += a // d
+            k = ceil(n / (b // d))
+            n -= k * (b // d)
+            m += k * (a // d)
 
         self.counter += 1
         while m - (a // d) > 0:
@@ -191,7 +189,8 @@ def main(argv: list[str]):
             f"Success! {argv[1]} is an interweaving of {argv[2]} and {argv[3]}"
         )
     else:
-        print("Could not determine if this is an interweaving")
+        print(f"Could not determine if {argv[1]} this is an interweaving of "
+              +f"{argv[2]} and {argv[3]}.")
 
 
 if __name__ == "__main__":
