@@ -80,21 +80,18 @@ class Interweaving:
         This is the Diophantine Equation, and there is a solution iff gcd(n,m)
         divides c.
         """
-        solution = False
         self.check_substrings(s)
-        n, m = self.modified_bezout(len(s), len(self._x), len(self._y))
         candidates = self.get_candidate_solutions(
-            len(self._x), n, len(self._y), m
+            len(self._x), len(self._y), len(s)
         )
 
         self.counter += 1
         for i, j in candidates:
             self.counter += 2
             if self._dp[len(self._x) * i][len(self._y) * j]:
-                solution = True
-                break
+                return True
 
-        return solution
+        return False
 
     def is_interweaving(self) -> bool:
         self.counter += 1
@@ -112,7 +109,7 @@ class Interweaving:
                 break
         if not match_found:
             return False
-        
+
         s = self._s[s_begin:]
 
         s_end = len(s)
@@ -129,7 +126,7 @@ class Interweaving:
 
         return self.check_linear_combinations(s)
 
-    def modified_bezout(self, c: int, a: int, b: int) -> Tuple[int, int]:
+    def modified_bezout(self, a: int, b: int, c: int) -> Tuple[int, int]:
         s = 0
         r = b
         old_s = 1
@@ -152,8 +149,9 @@ class Interweaving:
         return (old_s * (c // old_r), t * (c // old_r))
 
     def get_candidate_solutions(
-        self, a: int, n: int, b: int, m: int
+        self, a: int, b: int, c: int
     ) -> list[Tuple[int, int]]:
+        n, m = self.modified_bezout(a, b, c)
         candidates = []
         self.counter += 1
         if n <= 0 and m <= 0:
